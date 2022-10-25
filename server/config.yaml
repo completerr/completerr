@@ -1,0 +1,17 @@
+sonarr:
+  api_key: "657c32750b28481d96eb90741bd2319b"
+  url: "https://new-spaceseed.fucker.life/sonarr"
+  library_sync_interval: 300
+  search:
+    interval: 60
+    count: 100
+    backoff_days: 30
+radarr:
+  api_key: "2f5cdebe1bdf40a6840134df40c9124e"
+  url: "https://new-spaceseed.fucker.life/radarr"
+  library_sync_interval: 60
+  search:
+    interval: 60
+    count: 30
+    backoff_days: 30
+
