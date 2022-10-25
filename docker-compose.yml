@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: ./server
+      dockerfile: ./dev.Dockerfile
+
+    container_name: app
+    ports:
+      - 8080:8080
+      - 2345:2345
+    environment:
+      profile: prod
+      db_pass: pass
+    volumes:
+      - ./server:/server
