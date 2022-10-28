@@ -7,7 +7,8 @@
 *.out
 
 webapp/node_modules
-webapp/build
+webapp/out
+webapp/.next
 webapp/npm-debug.log*
 
 .idea/
