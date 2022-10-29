@@ -3,10 +3,12 @@ package db
 import (
 	"completerr/model"
 	"completerr/utils"
+	"github.com/morkid/paginate"
 	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -152,16 +154,40 @@ func LogTaskStart(jobType string) model.Task {
 }
 func LogTaskFinish(task model.Task) model.Task {
 	task.Finished = time.Now()
+	task.Status = "finished"
 	db.Save(&task)
 	return task
 }
 func LogMovieItemSearchRecord(task model.Task, item model.Item) model.SearchRecord {
-	searchRecord := model.SearchRecord{ItemID: item.ID, TaskID: task.ID}
+	searchRecord := model.SearchRecord{Item: item, Task: task}
 	db.Create(&searchRecord)
 	return searchRecord
 }
 func LogTvItemSearchRecord(task model.Task, item model.TvItem) model.SearchRecord {
-	searchRecord := model.SearchRecord{ItemID: item.ID, TvItemID: task.ID}
+	searchRecord := model.SearchRecord{TvItem: item, Task: task}
 	db.Create(&searchRecord)
 	return searchRecord
+}
+
+func GetTaskHistory(r *http.Request) paginate.Page {
+	var tasks = []model.Task{}
+	model := db.Model(&model.Task{}).Order("created_at desc")
+	pg := paginate.New()
+	page := pg.With(model).Request(r).Response(&tasks)
+
+	return page
+}
+
+func GetSearchHistory(r *http.Request, includeMovie bool, includeTv bool) paginate.Page {
+	var searchRecords = []model.SearchRecord{}
+	model := db.Model(&model.SearchRecord{}).Order("created_at desc")
+	if includeMovie {
+		model.Where("item_id > 0").Preload("Item")
+	} else if includeTv {
+		model.Where("tv_item_id > 0").Preload("TvItem")
+	}
+	pg := paginate.New()
+	page := pg.With(model).Request(r).Response(&searchRecords)
+
+	return page
 }

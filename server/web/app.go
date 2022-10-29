@@ -22,9 +22,12 @@ func NewApp(cors bool) App {
 	//}
 	app.handlers["/api/sonarr/import"] = controllers.SonarrLibraryImport
 	app.handlers["/api/sonarr/search"] = controllers.SonarrMissingSearch
+	app.handlers["/api/sonarr/history"] = controllers.SonarrSearchHistory
 	app.handlers["/api/radarr/import"] = controllers.RadarrLibraryImport
 	app.handlers["/api/radarr/search"] = controllers.RadarrMissingSearch
+	app.handlers["/api/radarr/history"] = controllers.RadarrSearchHistory
 	app.handlers["/api/tasks/info"] = controllers.TaskInfo
+	app.handlers["/api/tasks/history"] = controllers.TaskHistory
 	app.handlers["/"] = http.FileServer(http.Dir("/webapp")).ServeHTTP
 	return app
 }
