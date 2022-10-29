@@ -3,18 +3,17 @@ package main
 import (
 	_ "completerr/config"
 	"completerr/db"
-	"completerr/scheduler"
 	"completerr/services"
 	"completerr/web"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// CORS is enabled only in prod profile
 	db.InitDB()
-	scheduler.StartScheduler()
+	//	scheduler.StartScheduler()
 	go services.ImportRadarrMovies()
 	go services.ImportSonarrEpisodes()
 	cors := os.Getenv("profile") == "prod"

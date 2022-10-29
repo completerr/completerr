@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"completerr/db"
 	"completerr/scheduler"
 	"completerr/services"
 	"encoding/json"
@@ -20,6 +21,14 @@ func SonarrMissingSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	go scheduler.SearchMissingSonarrEpisode()
 	err := json.NewEncoder(w).Encode(MsgResp{Msg: "Starting Search"})
+	if err != nil {
+		sendErr(w, http.StatusInternalServerError, err.Error())
+	}
+}
+func SonarrSearchHistory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	results := db.GetSearchHistory(r, false, true)
+	err := json.NewEncoder(w).Encode(results)
 	if err != nil {
 		sendErr(w, http.StatusInternalServerError, err.Error())
 	}

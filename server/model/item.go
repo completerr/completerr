@@ -7,6 +7,7 @@ import (
 
 type Item struct {
 	gorm.Model
+	ID           int64     `json:"ID"`
 	Name         string    `json:"name"`
 	Available    bool      `json:"available"`
 	Released     bool      `json:"released"`
@@ -18,6 +19,7 @@ type Item struct {
 }
 type TvItem struct {
 	gorm.Model
+	ID                    int64     `json:"ID"`
 	Name                  string    `json:"name"`
 	Available             bool      `json:"available"`
 	Title                 string    `json:"title"`
@@ -32,6 +34,7 @@ type TvItem struct {
 }
 type Task struct {
 	gorm.Model
+	ID       int64     `json:"ID"`
 	Type     string    `json:"type"`
 	Status   string    `json:"status"`
 	Started  time.Time `json:"started"`
@@ -39,7 +42,11 @@ type Task struct {
 }
 type SearchRecord struct {
 	gorm.Model
-	TaskID   uint `json:"task_id"`
-	TvItemID uint `json:"tv_item_id"`
-	ItemID   uint `json:"item_id"`
+	ID       int64  `json:"ID"`
+	TaskID   int64  `json:"task_id"`
+	Task     Task   `json:"task"`
+	TvItemID int64  `json:"tv_item_id,omitempty"`
+	TvItem   TvItem `json:"tv_item,omitempty"`
+	Item     Item   `json:"item,omitempty"`
+	ItemID   int64  `json:"item_id,omitempty"`
 }

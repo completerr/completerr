@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"completerr/db"
 	"completerr/scheduler"
 	"completerr/utils"
 	"encoding/json"
@@ -25,4 +26,9 @@ func TaskInfo(w http.ResponseWriter, r *http.Request) {
 		sendErr(w, http.StatusInternalServerError, err.Error())
 	}
 	err = json.NewEncoder(w).Encode(TaskInfoResponse{RadarrImport: *rImport})
+}
+func TaskHistory(w http.ResponseWriter, r *http.Request) {
+	tasks := db.GetTaskHistory(r)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
 }
