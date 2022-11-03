@@ -15,6 +15,8 @@ import styled from "styled-components";
 import {useState} from "react";
 import {TaskHistory} from "../components/task/history";
 import Button from '@mui/material/Button';
+import Paper from "@mui/material/Paper";
+import Head from 'next/head';
 
 const theme = createTheme({
     palette: {
@@ -22,10 +24,15 @@ const theme = createTheme({
     }
 });
 const NavIcon = styled(CompleterrIcon)`
-  height: 1.5em;
+  height: 2em;
   padding-right: 0.5em;
   display: inline-block;
   vertical-align: middle;
+`
+const NavTitle = styled.span`
+  font-family: Poppins-Bold;
+  text-transform: uppercase;
+  margin-right: 3em;
 `
 
 enum Nav {
@@ -48,36 +55,42 @@ const Home: NextPage = () => {
     const [currentNav, setCurrentNav] = useState(Nav.TaskHistory)
     return (
         <ThemeProvider theme={theme}>
+            <Head>
+                <title>Completerr</title>
+            </Head>
             <CssBaseline/>
-            <AppBar position="relative" color="primary">
+            <AppBar position="relative" style={{background: '#000'}}>
                 <Toolbar>
-                    <Typography variant="h6" noWrap>
-                        <NavIcon/>
-                        Completerr
+                    <Box sx={{display: {xs: 'flex'}}}>
+                        <Typography variant="h6" noWrap>
+                            <NavIcon/>
 
-                    </Typography>
+                            <NavTitle>Completerr</NavTitle>
+                        </Typography>
+                    </Box>
                     <Box sx={{flexGrow: 1, display: {xs: 'flex'}}}>
-                        <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={() => {
+                        <Button sx={{my: 2, color: 'white', display: 'block'}} onClick={() => {
                             setCurrentNav(Nav.TaskHistory)
                         }}>Task </Button>
-                        <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={() => {
+                        <Button sx={{my: 2, color: 'white', display: 'block'}} onClick={() => {
                             setCurrentNav(Nav.RadarrHistory)
                         }}>Radarr </Button>
-                        <Button sx={{ my: 2, color: 'white', display: 'block'}}  onClick={() => {
+                        <Button sx={{my: 2, color: 'white', display: 'block'}} onClick={() => {
                             setCurrentNav(Nav.SonarrHistory)
                         }}>Sonarr </Button>
                     </Box>
                 </Toolbar>
             </AppBar>
-            <Box
-                sx={{
-                    backgroundColor: (theme) =>
-                        theme.palette.mode === 'light'
-                            ? theme.palette.grey[100]
-                            : theme.palette.grey[900],
-                    flexGrow: 1,
-                }}>
-                <Container>
+
+            <Box component={Paper}
+                 sx={{
+                     backgroundColor: (theme) =>
+                         theme.palette.mode === 'light'
+                             ? theme.palette.grey[100]
+                             : theme.palette.grey[900],
+                     flexGrow: 1,
+                 }}>
+                <Container sx={{mt: 4, mb: 4}}>
                     {
                         getPage(currentNav)
                     }
@@ -101,39 +114,4 @@ const Home: NextPage = () => {
         </ThemeProvider>
     );
 }
-// const Home: NextPage = () => {
-//     return (
-//         <div className={styles.container}>
-//             <Head>
-//                 <title>Completerr</title>
-//                 <link rel="icon" href="/favicon.ico"/>
-//             </Head>
-//
-//             <Navbar/>
-//             <main>
-//                 <div className={styles.containerTable100}>
-//                     <div className={styles.wrapTable100}>
-//                         {/*<TaskHistory/>*/}
-//                         <SearchHistory type={"radarr"}/>
-//                         <SearchHistory type={"sonarr"}/>
-//                     </div>
-//                 </div>
-//             </main>
-//
-//             <footer className={styles.footer}>
-//                 <a
-//                     href="https://github.com/completerr/completerr"
-//                     target="_blank"
-//                     rel="noopener noreferrer"
-//                 >
-//                     Contribute on{' '}
-//                     <span className={styles.logo}>
-//             <Image src="/github.svg" alt="Github Logo" width={16} height={16}/>
-//           </span>
-//                 </a>
-//             </footer>
-//         </div>
-//     )
-// }
-//
 export default Home

@@ -4,6 +4,7 @@ import (
 	_ "completerr/config"
 	"completerr/db"
 	"completerr/services"
+	"completerr/tasks"
 	"completerr/web"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	db.InitDB()
-	//	scheduler.StartScheduler()
+	tasks.StartScheduler()
 	go services.ImportRadarrMovies()
 	go services.ImportSonarrEpisodes()
 	cors := os.Getenv("profile") == "prod"
