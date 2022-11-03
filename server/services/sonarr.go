@@ -20,8 +20,8 @@ type EpisodeSearchCommandRequest struct {
 	EpisodeIDs int64   `json:"episodeIds,omitempty"`
 }
 
-func SearchSonarrEpisode(items []model.TvItem) {
-	task := db.LogTaskStart("SearchMissingTvItemJob")
+func SearchSonarrEpisode(items []model.SonarrItem) {
+	task := db.LogTaskStart(model.SonarrSearch)
 	r := getSonarrClient()
 
 	ctx, cancel := context.WithTimeout(context.TODO(), 180*time.Second)
@@ -42,14 +42,14 @@ func SearchSonarrEpisode(items []model.TvItem) {
 	db.LogTaskFinish(task)
 }
 
-func ImportSonarrEpisodes() []model.TvItem {
-	task := db.LogTaskStart("ImportSonarrJob")
+func ImportSonarrEpisodes() []model.SonarrItem {
+	task := db.LogTaskStart(model.SonarrImport)
 	db.MarkAllTVItemsAsDeleted()
 	episodes := ListSonarrMovies()
-	var importedEpisodes []model.TvItem
+	var importedEpisodes []model.SonarrItem
 
 	for _, episode := range episodes {
-		item := model.TvItem{
+		item := model.SonarrItem{
 			Name:                  episode.Title,
 			Title:                 episode.Title,
 			Available:             episode.HasFile,
@@ -81,7 +81,7 @@ type Wanted struct {
 func ListSonarrMovies() []*sonarr.Episode {
 	r := getSonarrClient()
 
-	ctx, cancel := context.WithTimeout(context.TODO(), 180*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Minute)
 	defer cancel() // releases resources if slowOperation completes before timeout elapses
 
 	resp := Wanted{}

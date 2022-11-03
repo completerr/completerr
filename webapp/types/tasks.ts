@@ -2,6 +2,7 @@ enum TaskStatus {
     Started = "started",
     Finished = "finished"
 }
+
 export interface PaginatedResults<T> {
     items: T[],
     page: number
@@ -13,7 +14,9 @@ export interface PaginatedResults<T> {
     first: boolean
     visible: number
 }
+
 export type PaginationInfo = Omit<PaginatedResults<any>, "items">
+
 export interface Task {
     CreatedAt: Date;
     UpdatedAt: Date;
@@ -25,7 +28,7 @@ export interface Task {
     finished: Date;
 }
 
-export interface TvItem {
+export interface SonarrItem {
     CreatedAt: Date;
     UpdatedAt: Date;
     DeletedAt?: any;
@@ -43,7 +46,7 @@ export interface TvItem {
     absolute_episode_number: number;
 }
 
-export interface Item {
+export interface RadarrItem {
     CreatedAt: Date;
     UpdatedAt: Date;
     DeletedAt?: any;
@@ -65,13 +68,26 @@ export interface SearchRecord {
     ID: number;
     task_id: number;
     task: Task;
-    tv_item_id: number;
-    tv_item: TvItem;
-    item: Item;
-    item_id: number;
+    sonarr_item_id: number;
+    sonarr_item: SonarrItem;
+    radarr_item: RadarrItem;
+    radarr_item_id: number;
 }
 
 
-export type RadarrSearchRecord = Omit<SearchRecord,"tv_item"| "tv_item_id">
-export type SonarrSearchRecord = Omit<SearchRecord,"item"| "item_id">
+export type RadarrSearchRecord = Omit<SearchRecord, "sonarr_item" | "sonarr_item_id">
+export type SonarrSearchRecord = Omit<SearchRecord, "radarr_item" | "radarr_item_id">
 export type ItemType = "radarr" | "sonarr"
+
+export interface TaskInfo {
+    prev_run_at: Date;
+    next_run_at: Date;
+}
+
+
+export interface TaskInfoResponse {
+    radarr_import: TaskInfo;
+    radarr_search: TaskInfo;
+    sonarr_import: TaskInfo;
+    sonarr_search: TaskInfo;
+}

@@ -16,8 +16,8 @@ import (
 
 var logger = utils.GetLogger()
 
-func SearchRadarrMovies(items []model.Item) {
-	task := db.LogTaskStart("SearchMissingItemJob")
+func SearchRadarrMovies(items []model.RadarrItem) {
+	task := db.LogTaskStart(model.RadarrSearch)
 	r := getRadarrClient()
 
 	var ids []int64
@@ -36,17 +36,17 @@ func SearchRadarrMovies(items []model.Item) {
 	db.LogTaskFinish(task)
 }
 
-func ImportRadarrMovies() []model.Item {
-	task := db.LogTaskStart("ImportRadarrJob")
+func ImportRadarrMovies() []model.RadarrItem {
+	task := db.LogTaskStart(model.RadarrImport)
 	movies := ListRadarrMovies()
-	var importedMovies []model.Item
+	var importedMovies []model.RadarrItem
 
 	for _, movie := range movies {
 		if movie.HasFile || movie.Status != "released" {
 			db.RemoveItem(movie.TmdbID)
 			continue
 		}
-		item := model.Item{
+		item := model.RadarrItem{
 			Name:         movie.Title,
 			Available:    movie.HasFile,
 			Released:     movie.Status == "released",
