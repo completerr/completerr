@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   completerr:
-    image: ghcr.io/completerr/completerr
+    image: ghcr.io/completerr/completerr:main
     ports:
       - 8080:8080
     volumes:
