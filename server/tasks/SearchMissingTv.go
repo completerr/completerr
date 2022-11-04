@@ -1,7 +1,9 @@
-package scheduler
+package tasks
 
 import (
 	"completerr/db"
+	"completerr/model"
+	"completerr/scheduler"
 	"completerr/services"
 	"github.com/reugn/go-quartz/quartz"
 	"github.com/spf13/viper"
@@ -11,7 +13,7 @@ import (
 func ScheduleTvSearch() {
 	logger.Info("Scheduling Sonarr Search")
 	interval := viper.GetInt("sonarr.search.interval")
-	sched.ScheduleJob(SearchMissingTvItemJob{}, quartz.NewSimpleTrigger(time.Minute*time.Duration(interval)))
+	scheduler.ScheduleJob(SearchMissingTvItemJob{}, quartz.NewSimpleTrigger(time.Minute*time.Duration(interval)))
 }
 
 func SearchMissingSonarrEpisode() {
@@ -22,7 +24,7 @@ func SearchMissingSonarrEpisode() {
 }
 
 func (j SearchMissingTvItemJob) Key() int {
-	return SearchMissingSonarr
+	return model.SearchMissingSonarr
 }
 func (j SearchMissingTvItemJob) Execute() {
 	logger.Info("Running scheduled Sonarr search")

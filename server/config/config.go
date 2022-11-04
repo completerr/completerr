@@ -1,7 +1,7 @@
 package config
 
 import (
-	"completerr/scheduler"
+	"completerr/tasks"
 	"completerr/utils"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
@@ -26,7 +26,7 @@ func initConfig() {
 	}
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		logger.Info(fmt.Sprintf("Config file changed: %s", e.Name))
-		scheduler.RestartScheduler()
+		tasks.RestartScheduler()
 	})
 	viper.WatchConfig()
 }

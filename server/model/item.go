@@ -5,8 +5,9 @@ import (
 	"time"
 )
 
-type Item struct {
+type RadarrItem struct {
 	gorm.Model
+	ID           int64     `json:"ID"`
 	Name         string    `json:"name"`
 	Available    bool      `json:"available"`
 	Released     bool      `json:"released"`
@@ -16,8 +17,9 @@ type Item struct {
 	RadarrId     int64     `json:"radarr_id" gorm:"uniqueIndex;not null"`
 	SearchCount  int       `json:"search_count" gorm:"default: 0;not null"`
 }
-type TvItem struct {
+type SonarrItem struct {
 	gorm.Model
+	ID                    int64     `json:"ID"`
 	Name                  string    `json:"name"`
 	Available             bool      `json:"available"`
 	Title                 string    `json:"title"`
@@ -32,14 +34,20 @@ type TvItem struct {
 }
 type Task struct {
 	gorm.Model
+	ID       int64     `json:"ID"`
 	Type     string    `json:"type"`
 	Status   string    `json:"status"`
 	Started  time.Time `json:"started"`
 	Finished time.Time `json:"finished"`
 }
+
 type SearchRecord struct {
 	gorm.Model
-	TaskID   uint `json:"task_id"`
-	TvItemID uint `json:"tv_item_id"`
-	ItemID   uint `json:"item_id"`
+	ID           int64      `json:"ID"`
+	TaskID       int64      `json:"task_id"`
+	Task         Task       `json:"task"`
+	SonarrItem   SonarrItem `json:"sonarr_item,omitempty"`
+	SonarrItemID int64      `json:"sonarr_item_id,omitempty"`
+	RadarrItem   RadarrItem `json:"radarr_item,omitempty"`
+	RadarrItemID int64      `json:"radarr_item_id,omitempty"`
 }

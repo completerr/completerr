@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"completerr/scheduler"
+	"completerr/db"
 	"completerr/services"
+	"completerr/tasks"
 	"encoding/json"
 	"net/http"
 )
@@ -21,8 +22,16 @@ func RadarrLibraryImport(w http.ResponseWriter, r *http.Request) {
 }
 func RadarrMissingSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	go scheduler.SearchMissingRadarrMovies()
+	go tasks.SearchMissingRadarrMovies()
 	err := json.NewEncoder(w).Encode(MsgResp{Msg: "Starting Search"})
+	if err != nil {
+		sendErr(w, http.StatusInternalServerError, err.Error())
+	}
+}
+func RadarrSearchHistory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	results := db.GetSearchHistory(r, true, false)
+	err := json.NewEncoder(w).Encode(results)
 	if err != nil {
 		sendErr(w, http.StatusInternalServerError, err.Error())
 	}

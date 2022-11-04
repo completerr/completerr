@@ -1,6 +1,8 @@
-package scheduler
+package tasks
 
 import (
+	"completerr/model"
+	"completerr/scheduler"
 	"completerr/services"
 	"github.com/reugn/go-quartz/quartz"
 	"github.com/spf13/viper"
@@ -10,7 +12,7 @@ import (
 func ScheduleImport() {
 	logger.Info("Scheduling Import")
 	interval := viper.GetInt("radarr.library_sync_interval")
-	sched.ScheduleJob(ImportRadarrJob{}, quartz.NewSimpleTrigger(time.Minute*time.Duration(interval)))
+	scheduler.ScheduleJob(ImportRadarrJob{}, quartz.NewSimpleTrigger(time.Minute*time.Duration(interval)))
 }
 
 func ImportRadarrMovies() {
@@ -18,7 +20,7 @@ func ImportRadarrMovies() {
 }
 
 func (j ImportRadarrJob) Key() int {
-	return ImportRadarr
+	return model.ImportRadarr
 }
 func (j ImportRadarrJob) Execute() {
 	logger.Info("Running scheduled Radarr import")

@@ -3,10 +3,12 @@ package db
 import (
 	"completerr/model"
 	"completerr/utils"
+	"github.com/morkid/paginate"
 	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -19,27 +21,11 @@ func InitDB() {
 
 	logger.Info("Running Migrations")
 	// Migrate the schema
-	db.AutoMigrate(&model.Item{})
-	db.AutoMigrate(&model.TvItem{})
+	db.AutoMigrate(&model.RadarrItem{})
+	db.AutoMigrate(&model.SonarrItem{})
 	db.AutoMigrate(&model.Task{})
 	db.AutoMigrate(&model.SearchRecord{})
 
-	//// Create
-	//db.Create(&Product{Code: "D42", Price: 100})
-	//
-	//// Read
-	//var product Product
-	//db.First(&product, 1)                 // find product with integer primary key
-	//db.First(&product, "code = ?", "D42") // find product with code D42
-	//
-	//// Update - update product's price to 200
-	//db.Model(&product).Update("Price", 200)
-	//// Update - update multiple fields
-	//db.Model(&product).Updates(Product{Price: 200, Code: "F42"}) // non-zero fields
-	//db.Model(&product).Updates(map[string]interface{}{"Price": 200, "Code": "F42"})
-	//
-	//// Delete - delete product
-	//db.Delete(&product, 1)
 }
 
 func getDb() *gorm.DB {
@@ -49,9 +35,9 @@ func getDb() *gorm.DB {
 	}
 	return db
 }
-func AddItems(items []model.Item) []model.Item {
+func AddItems(items []model.RadarrItem) []model.RadarrItem {
 
-	logger.Debug("Adding Item", items)
+	logger.Debug("Adding RadarrItem", items)
 	result := db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "radarr_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"name", "title", "available", "released", "tmdb_id"}),
@@ -62,10 +48,10 @@ func AddItems(items []model.Item) []model.Item {
 	return items
 }
 func MarkAllTVItemsAsDeleted() {
-	db.Delete(&model.TvItem{})
+	db.Delete(&model.SonarrItem{})
 }
-func AddTVItems(items []model.TvItem) []model.TvItem {
-	logger.Debug("Adding Item", items)
+func AddTVItems(items []model.SonarrItem) []model.SonarrItem {
+	logger.Debug("Adding SonarrItem", items)
 	chunkSize := 100
 	for _, chunk := range ChunkTV(items, chunkSize) {
 
@@ -80,8 +66,8 @@ func AddTVItems(items []model.TvItem) []model.TvItem {
 	}
 	return items
 }
-func ChunkTV(items []model.TvItem, chunkSize int) [][]model.TvItem {
-	var chunks [][]model.TvItem
+func ChunkTV(items []model.SonarrItem, chunkSize int) [][]model.SonarrItem {
+	var chunks [][]model.SonarrItem
 	for chunkSize < len(items) {
 		items, chunks = items[chunkSize:], append(chunks, items[0:chunkSize:chunkSize])
 	}
@@ -90,33 +76,33 @@ func ChunkTV(items []model.TvItem, chunkSize int) [][]model.TvItem {
 }
 func RemoveItem(tmdbId int64) {
 	logger.Debug("Removing Id if exists")
-	result := db.Where(model.Item{TMDBId: tmdbId}).Delete(&model.Item{})
+	result := db.Where(model.RadarrItem{TMDBId: tmdbId}).Delete(&model.RadarrItem{})
 	if result.Error != nil {
 		logger.Error(result.Error)
 	}
 }
-func MarkTvItemAsSearched(item *model.TvItem, task model.Task) {
+func MarkTvItemAsSearched(item *model.SonarrItem, task model.Task) {
 	item.LastSearched = time.Now()
 	item.SearchCount++
 	db.Save(item)
 	LogTvItemSearchRecord(task, *item)
 }
-func MarkItemAsSearched(item *model.Item, task model.Task) {
+func MarkItemAsSearched(item *model.RadarrItem, task model.Task) {
 	item.LastSearched = time.Now()
 	item.SearchCount++
 	db.Save(item)
 	LogMovieItemSearchRecord(task, *item)
 }
 
-func GetRandomSearchTvItem(count int) []model.TvItem {
-	items := []model.TvItem{}
+func GetRandomSearchTvItem(count int) []model.SonarrItem {
+	items := []model.SonarrItem{}
 	lookbackDays, err := strconv.Atoi(viper.GetString("sonarr.search.backoff_days"))
 	if err != nil {
 		logger.Error(err)
 	}
 
 	lastSearchedCutoff := time.Now().Add(time.Hour * time.Duration(lookbackDays*24))
-	result := db.Table("tv_items").Where(model.TvItem{Available: false}).Where("last_searched <= ?", lastSearchedCutoff).Clauses(clause.OrderBy{
+	result := db.Table("sonarr_items").Where(model.SonarrItem{Available: false}).Where("last_searched <= ?", lastSearchedCutoff).Clauses(clause.OrderBy{
 		Expression: clause.Expr{SQL: "RANDOM()", WithoutParentheses: true},
 	}).Limit(count).Scan(&items)
 	if result.Error != nil {
@@ -124,15 +110,15 @@ func GetRandomSearchTvItem(count int) []model.TvItem {
 	}
 	return items
 }
-func GetRandomSearchItem(count int) []model.Item {
-	items := []model.Item{}
+func GetRandomSearchItem(count int) []model.RadarrItem {
+	items := []model.RadarrItem{}
 	lookbackDays, err := strconv.Atoi(viper.GetString("radarr.search.backoff_days"))
 	if err != nil {
 		logger.Error(err)
 	}
 
 	lastSearchedCutoff := time.Now().Add(time.Hour * time.Duration(lookbackDays*24))
-	result := db.Table("items").Where(model.Item{Available: false, Released: true}).Where("last_searched <= ?", lastSearchedCutoff).Clauses(clause.OrderBy{
+	result := db.Table("radarr_items").Where(model.RadarrItem{Available: false, Released: true}).Where("last_searched <= ?", lastSearchedCutoff).Clauses(clause.OrderBy{
 		Expression: clause.Expr{SQL: "RANDOM()", WithoutParentheses: true},
 	}).Limit(count).Scan(&items)
 	if result.Error != nil {
@@ -140,9 +126,9 @@ func GetRandomSearchItem(count int) []model.Item {
 	}
 	return items
 }
-func LogTaskStart(jobType string) model.Task {
+func LogTaskStart(jobType model.CompleterrJob) model.Task {
 	task := model.Task{
-		Type:     jobType,
+		Type:     jobType.Name,
 		Status:   "started",
 		Started:  time.Now(),
 		Finished: time.Time{},
@@ -152,16 +138,45 @@ func LogTaskStart(jobType string) model.Task {
 }
 func LogTaskFinish(task model.Task) model.Task {
 	task.Finished = time.Now()
+	task.Status = "finished"
 	db.Save(&task)
 	return task
 }
-func LogMovieItemSearchRecord(task model.Task, item model.Item) model.SearchRecord {
-	searchRecord := model.SearchRecord{ItemID: item.ID, TaskID: task.ID}
+func LogMovieItemSearchRecord(task model.Task, item model.RadarrItem) model.SearchRecord {
+	searchRecord := model.SearchRecord{RadarrItem: item, Task: task}
 	db.Create(&searchRecord)
 	return searchRecord
 }
-func LogTvItemSearchRecord(task model.Task, item model.TvItem) model.SearchRecord {
-	searchRecord := model.SearchRecord{ItemID: item.ID, TvItemID: task.ID}
+func LogTvItemSearchRecord(task model.Task, item model.SonarrItem) model.SearchRecord {
+	searchRecord := model.SearchRecord{SonarrItem: item, Task: task}
 	db.Create(&searchRecord)
 	return searchRecord
+}
+
+func GetTaskHistory(r *http.Request) paginate.Page {
+	var tasks = []model.Task{}
+	model := db.Model(&model.Task{}).Order("created_at desc")
+	pg := paginate.New()
+	page := pg.With(model).Request(r).Response(&tasks)
+
+	return page
+}
+func GetMostRecentTaskRun(job model.CompleterrJob) model.Task {
+	var task = model.Task{}
+	db.Model(model.Task{}).Order("created_at desc").Where("type = ?", job.Name).First(&task)
+	return task
+}
+
+func GetSearchHistory(r *http.Request, includeMovie bool, includeTv bool) paginate.Page {
+	var searchRecords = []model.SearchRecord{}
+	model := db.Model(&model.SearchRecord{}).Order("created_at desc")
+	if includeMovie {
+		model.Where("radarr_item_id > 0").Preload("RadarrItem")
+	} else if includeTv {
+		model.Where("sonarr_item_id > 0").Preload("SonarrItem")
+	}
+	pg := paginate.New()
+	page := pg.With(model).Request(r).Response(&searchRecords)
+
+	return page
 }
