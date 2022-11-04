@@ -16,4 +16,4 @@ webapp/npm-debug.log*
 server/tmp/
 server/config.yaml
 server/completerr.db
-config/
+./config/

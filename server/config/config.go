@@ -16,6 +16,7 @@ func initConfig() {
 	viper.SetEnvKeyReplacer(replacer)
 	viper.SetConfigName("config")            // name of config file (without extension)
 	viper.SetConfigType("yaml")              // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("/config/")          // path to look for the config file in
 	viper.AddConfigPath("/etc/completerr/")  // path to look for the config file in
 	viper.AddConfigPath("$HOME/.completerr") // call multiple times to add many search paths
 	viper.AddConfigPath(".")                 // optionally look for config in the working directory
