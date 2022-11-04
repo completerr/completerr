@@ -1,0 +1,16 @@
+sonarr:
+  api_key: "YOUR-SONARR-API-KEY"
+  url: "https://YOUR-SONARR-URL:8989/"
+  library_sync_interval: 300 # How frequently to sync completerr library with sonarr library
+  search:
+    interval: 60 # How frequently to search (minutes)
+    count: 100 # How many items to queue searches for each run
+    backoff_days: 30  # How many days to wait before searching the same item a second time
+radarr:
+  api_key: "YOUR-RADARR-API-KEY"
+  url: "https://YOUR-RADARR-URL:8989/"
+  library_sync_interval: 60 # How frequently to sync completerr library with sonarr library
+  search:
+    interval: 60 # How frequently to search (minutes)
+    count: 30 # How many items to queue searches for each run
+    backoff_days: 30 # How many days to wait before searching the same item a second time

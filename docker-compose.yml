@@ -1,15 +1,8 @@
 version: "3.7"
 services:
-  app:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    container_name: app
+  completerr:
+    image: ghcr.io/completerr/completerr
     ports:
       - 8080:8080
-      - 2345:2345
-#    environment:
-#      profile: prod
     volumes:
-      - ./server:/server
-      - ./webapp/out:/webapp
+      - ./config:/config

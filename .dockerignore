@@ -1,2 +1,6 @@
 webapp/node_modules/
 webapp/build/
+.idea/
+*.db
+server/config.yaml
+server/completerr.db
