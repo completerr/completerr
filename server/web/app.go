@@ -34,8 +34,14 @@ func NewApp(cors bool) App {
 	app.handlers[basePath+"/api/radarr/history"] = controllers.RadarrSearchHistory
 	app.handlers[basePath+"/api/tasks/info"] = controllers.TaskInfo
 	app.handlers[basePath+"/api/tasks/history"] = controllers.TaskHistory
-	app.handlers[basePath+"/"] = http.FileServer(http.FS(webAppFS)).ServeHTTP
+	app.handlers[basePath+"/"] = loggingHandler(http.FileServer(http.FS(webAppFS))).ServeHTTP
 	return app
+}
+func loggingHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger.Info(r.Method, r.URL.Path)
+		h.ServeHTTP(w, r)
+	})
 }
 
 func (a *App) Serve() error {
