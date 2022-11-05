@@ -26,7 +26,7 @@ func NewApp(cors bool) App {
 	app.handlers[basePath+"/api/radarr/history"] = controllers.RadarrSearchHistory
 	app.handlers[basePath+"/api/tasks/info"] = controllers.TaskInfo
 	app.handlers[basePath+"/api/tasks/history"] = controllers.TaskHistory
-	app.handlers[basePath+"/"] = http.FileServer(http.Dir("/webapp")).ServeHTTP
+	app.handlers[basePath+"/"] = http.FileServer(http.Dir("/completerr/webapp")).ServeHTTP
 
 	return app
 }
