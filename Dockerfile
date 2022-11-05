@@ -6,12 +6,12 @@ RUN npm install && npm run build
 FROM golang:1.18.1-alpine3.15 AS GO_BUILD
 RUN apk add build-base
 COPY server /server
+COPY --from=JS_BUILD /webapp/out* /server/web/webapp/
 WORKDIR /server
 RUN go build -o /go/bin/server
 
 FROM alpine:3.13.5
 WORKDIR /completerr
-COPY --from=JS_BUILD /webapp/out* ./webapp/
 COPY --from=GO_BUILD /go/bin/server ./
 COPY config.example.yaml ./
 COPY entrypoint.sh ./

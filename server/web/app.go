@@ -3,10 +3,14 @@ package web
 import (
 	"completerr/controllers"
 	"completerr/utils"
+	"embed"
+	"io/fs"
 	"net/http"
 	"os"
 )
 
+//go:embed all:webapp
+var webapp embed.FS
 var logger = utils.GetLogger()
 
 type App struct {
@@ -14,6 +18,10 @@ type App struct {
 }
 
 func NewApp(cors bool) App {
+	webAppFS, err := fs.Sub(webapp, "webapp")
+	if err != nil {
+		logger.Fatal(err)
+	}
 	app := App{
 		handlers: make(map[string]http.HandlerFunc),
 	}
@@ -26,8 +34,7 @@ func NewApp(cors bool) App {
 	app.handlers[basePath+"/api/radarr/history"] = controllers.RadarrSearchHistory
 	app.handlers[basePath+"/api/tasks/info"] = controllers.TaskInfo
 	app.handlers[basePath+"/api/tasks/history"] = controllers.TaskHistory
-	app.handlers[basePath+"/"] = http.FileServer(http.Dir("/completerr/webapp")).ServeHTTP
-
+	app.handlers[basePath+"/"] = http.FileServer(http.FS(webAppFS)).ServeHTTP
 	return app
 }
 
