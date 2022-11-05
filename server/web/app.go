@@ -6,7 +6,6 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
-	"os"
 )
 
 //go:embed all:webapp
@@ -25,16 +24,15 @@ func NewApp(cors bool) App {
 	app := App{
 		handlers: make(map[string]http.HandlerFunc),
 	}
-	basePath := os.Getenv("BASE_PATH")
-	app.handlers[basePath+"/api/sonarr/import"] = controllers.SonarrLibraryImport
-	app.handlers[basePath+"/api/sonarr/search"] = controllers.SonarrMissingSearch
-	app.handlers[basePath+"/api/sonarr/history"] = controllers.SonarrSearchHistory
-	app.handlers[basePath+"/api/radarr/import"] = controllers.RadarrLibraryImport
-	app.handlers[basePath+"/api/radarr/search"] = controllers.RadarrMissingSearch
-	app.handlers[basePath+"/api/radarr/history"] = controllers.RadarrSearchHistory
-	app.handlers[basePath+"/api/tasks/info"] = controllers.TaskInfo
-	app.handlers[basePath+"/api/tasks/history"] = controllers.TaskHistory
-	app.handlers[basePath+"/"] = loggingHandler(http.FileServer(http.FS(webAppFS))).ServeHTTP
+	app.handlers["/api/sonarr/import"] = controllers.SonarrLibraryImport
+	app.handlers["/api/sonarr/search"] = controllers.SonarrMissingSearch
+	app.handlers["/api/sonarr/history"] = controllers.SonarrSearchHistory
+	app.handlers["/api/radarr/import"] = controllers.RadarrLibraryImport
+	app.handlers["/api/radarr/search"] = controllers.RadarrMissingSearch
+	app.handlers["/api/radarr/history"] = controllers.RadarrSearchHistory
+	app.handlers["/api/tasks/info"] = controllers.TaskInfo
+	app.handlers["/api/tasks/history"] = controllers.TaskHistory
+	app.handlers["/"] = loggingHandler(http.FileServer(http.FS(webAppFS))).ServeHTTP
 	return app
 }
 func loggingHandler(h http.Handler) http.Handler {
