@@ -29,7 +29,7 @@ func InitDB() {
 }
 
 func getDb() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("completerr.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("/config/completerr.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
